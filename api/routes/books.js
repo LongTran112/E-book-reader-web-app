@@ -22,6 +22,25 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+//GET ALL BOOK
+router.get("/", async (req, res) => {
+    const title = req.query.title;
+    try {
+        let books;
+        if (title){
+            books = await Book.find({title});
+        }else{
+            books = await Book.find();
+        }
+        res.status(200).json(books);
+
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+
+
 
 
 module.exports = router;
