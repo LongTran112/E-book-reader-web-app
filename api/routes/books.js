@@ -3,10 +3,16 @@ const Book = require("../models/Book");
 
 //CREATE BOOK
 router.post("/", async (req, res) => {
-    const newPost = new Book(req.body);
+    // const newPost = new Book(req.body);
+    const newPost = new Book({
+        title: req.body.title,
+        author: req.body.author,
+        description: req.body.description,
+        content: req.body.content
+    });
     try {
-        const savedPost = await newPost.save();
-        res.status(200).json(savedPost);
+       await newPost.save();
+        res.status(200).json(newPost);
     } catch (err) {
         res.status(500).json(err);
     }
