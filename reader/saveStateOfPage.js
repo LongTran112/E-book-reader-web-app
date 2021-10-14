@@ -3,7 +3,7 @@ window.onload = function () {
   setStateOnRefresh = localStorage.getItem("keyEntirePage");
   console.log(setStateOnRefresh);
   if (setStateOnRefresh != null) {
-    document.body.innerHTML = setStateOnRefresh;
+    // document.body.innerHTML = setStateOnRefresh;
   }
 };
 
