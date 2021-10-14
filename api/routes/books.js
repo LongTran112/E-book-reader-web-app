@@ -21,8 +21,10 @@ router.post("/", async (req, res) => {
 //GET BOOK
 router.get("/:id", async (req, res) => {
     try {
-        const post = await Book.findById(req.params.id);
-        res.status(200).json(post);
+        const book = await Book.findById(req.params.id);
+        res.status(200).render('book',{
+            book
+        })
     } catch (err) {
         res.status(500).json(err);
     }
@@ -38,7 +40,9 @@ router.get("/", async (req, res) => {
         }else{
             books = await Book.find();
         }
-        res.status(200).json(books);
+        res.status(200).render('index',{
+            books
+        });
 
     } catch (err) {
         res.status(500).json(err);
