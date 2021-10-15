@@ -36,9 +36,9 @@
 
         </table>
 
-        <button class="bR" id="bR" onclick="Render()">Render</button>
+        <button type="button" class="bR" id="bR" onclick="Render()">Render</button>
         <button id="bS" class="bS" onclick="Save()">Save</button>
-        <button class="bFnt" id="footnoteBtn" onclick="AddFootnoteOrChapter('footnoteNumber')">Footnote</button>
+        <button type="button" class="bFnt" id="footnoteBtn" onclick="AddFootnoteOrChapter('footnoteNumber')">Footnote</button>
 
         <select id="s1" class="s1" onchange="selectStyle()">
             <option value="" selected disabled hidden>Style</option>
@@ -82,11 +82,11 @@
 
         <div>
             <!--    CONTENT INPUT-->
-            <textarea name="content" id="text1" class="text1" ></textarea>
-            <textarea id="outputHidden" name="hide" style="display:none"></textarea>
+            <textarea  id="text1" class="text1" ></textarea>
+            <textarea name="content" id="outputHidden" name="hide" style="display:none"></textarea>
         </div>
 
-        <div class="textEdit" id="renderedOutputHidden">
+        <div class="textEdit" id="renderedOutputHidden" contenteditable="false">
             <div id="chapter" class="chapter"></div>
 
             <div id="text2" class="text2"></div>
