@@ -192,7 +192,7 @@ function Render(){
         .replace(/<\/font>/g,'</span>')													//Replace tag </font> with </span>
         .replace(/<size:(\d+)px>/g, "<span class='align' style=\"font-size:$1px\">")						//Replace tag <size:[font size]px> with <span style="font-size:[font size]px>
         .replace(/<\/size>/g, '</span>')													//Replace tag </size> with </span>
-        .replace(/<a:(\w+)>/g, "<span class=\"$1\">")                                      //replace tag <a:[text align]> with <align=[text align]>
+        .replace(/<a:(\w+)>/g, "<span class=\'$1\'>")                                      //replace tag <a:[text align]> with <align=[text align]>
         .replace(/<\/a>/g, '</span>')                                                      //replace tag </a> with </align>
         .replace(/<chapter:(\d+)>(.*?)<\/chapter>/g, "<h2 id=\"chapter-$1\">" + 'Chapter $1 - $2' + "</h2>")
         .replace(/\n/g,"<br></br>");
