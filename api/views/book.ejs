@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Book</title>
     <style>
         body{
@@ -12,12 +13,8 @@
             height: 100%;
             position: absolute;
             left: 0%;
-        }
-        .chapter{
-            width: 200px;
-            height: 200px;
-            position: fixed;
-            left:10px;
+            margin-top: auto;
+            margin-bottom: auto;
         }
         .text2{
             width: 60%;
@@ -26,11 +23,8 @@
             left:20%;
             border: 1px white solid;
         }
-        article.footnote{
-            width:800px;
-            position:absolute;
-        }
         .left{
+        //white-space: nowrap;
             display:inline-block;
             text-align: left;
             margin-top: auto;
@@ -38,6 +32,7 @@
             width: 100%;
         }
         .center{
+        //white-space: nowrap;
             display: inline-block;
             text-align: center;
             margin-top: auto;
@@ -45,6 +40,7 @@
             width: 100%;
         }
         .right{
+        //white-space: nowrap;
             display: inline-block;
             text-align: right;
             margin-top: auto;
@@ -65,10 +61,23 @@
             background-color: #ffffdd;
             border: 1px solid #000;
         }
+        .fontTextContent {
+            font-family: Arial;
+        }
     </style>
     <script>
         function selectFont(selectTag) {
             var listValue = selectTag.options[selectTag.selectedIndex].text;
+            var text2Elem = document.getElementById("text2");
+            var allElemsInText2 = text2Elem.getElementsByTagName('*');
+            console.log(allElemsInText2);
+
+            for (var i = 0; i < allElemsInText2.length; i++)
+            {
+                //allElemsInText2[i].setAttribute('style', 'font-family:' + listValue);
+                allElemsInText2[i].style.fontFamily = listValue;
+            }
+
             document.getElementById("textContent").style.fontFamily = listValue;
         }
     </script>
@@ -100,53 +109,105 @@
         var cnt = 0;
         function addBookmark() {
             cnt++;
-            var selectedText = "";
-            if (document.getSelection) {
-                selectedText = document.getSelection();
-            } else if (window.getSelection) {
-                selectedText = window.getSelection();
-            } else if (document.selection) {
-                selectedText = document.selection.createRange().text;
-            }
-            //Get a the selected content, in a range object
-            var range = selectedText.getRangeAt(0);
-            var selectedTextStr = range.extractContents();
-            //If the range spans some text, and inside a tag, set its css class.
-            if (range) {
-                var markerEl,
-                    markerId = "bookmark-" + cnt;
-                markerEl = document.createElement("span");
-                markerEl.id = markerId;
+            var sel = window.getSelection();
+            var selectedText = sel.toString();
+            console.log(selectedText);
+            var range = sel.getRangeAt(0).cloneRange();
+            var markerTextChar = range.extractContents();
 
-                markerEl.appendChild(selectedTextStr);
+            console.log(markerTextChar);
+
+            var markerEl, markerId = "bookmark-" + cnt;
+            markerEl = document.createElement("span");
+            markerEl.id = markerId;
+            if (selectedText != "")
+            {
+                markerEl.appendChild(markerTextChar);
 
                 range.insertNode(markerEl);
 
-                var tableOfContentElem = document.getElementById("tableOfContent");
-                tableOfContentElem.innerHTML += "<a href='#bookmark-" + cnt + "'>" + selectedText + "</a><br>";
+                //var tableOfContentElem = document.getElementById("tableOfContent");
+                //tableOfContentElem.innerHTML += "<a href='#bookmark-" + cnt + "'>" + selectedText + "</a><br>";
+                var chapterElem = document.getElementById("chapter");
+                chapterElem.innerHTML += "<a href='#bookmark-" + cnt + "'>" + selectedText + "</a><br>";
             }
         }
     </script>
     <script>
+        function highlightRange(range) {
+            var newNode = document.createElement("div");
+            newNode.setAttribute("style", "background-color: yellow; display: inline;");
+            range.surroundContents(newNode);
+        }
+
+        function getSafeRanges(dangerous) {
+            //Node that contains both boundary points of the Range
+            var a = dangerous.commonAncestorContainer;
+            // Starts -- Work inward from the start, selecting the largest safe range
+            var s = new Array(0),
+                rs = new Array(0);
+            if (dangerous.startContainer != a)
+                for (var i = dangerous.startContainer; i != a; i = i.parentNode) {
+                    s.push(i);
+                }
+            if (0 < s.length)
+                for (var i = 0; i < s.length; i++) {
+                    var xs = document.createRange();
+                    if (i) {
+                        //set the start boundary of Range after s[i-1]
+                        xs.setStartAfter(s[i - 1]);
+                        //set the end boundary of Range after s[i].lastchild
+                        xs.setEndAfter(s[i].lastChild);
+                    } else {
+                        //set the Start of range
+                        xs.setStart(s[i], dangerous.startOffset);
+                        xs.setEndAfter(s[i].nodeType == Node.TEXT_NODE ? s[i] : s[i].lastChild);
+                    }
+                    rs.push(xs);
+                }
+            // Ends -- basically the same code reversed
+            var e = new Array(0),
+                re = new Array(0);
+            if (dangerous.endContainer != a)
+                for (var i = dangerous.endContainer; i != a; i = i.parentNode) e.push(i);
+            if (0 < e.length)
+                for (var i = 0; i < e.length; i++) {
+                    var xe = document.createRange();
+                    if (i) {
+                        xe.setStartBefore(e[i].firstChild);
+                        xe.setEndBefore(e[i - 1]);
+                    } else {
+                        xe.setStartBefore(
+                            e[i].nodeType == Node.TEXT_NODE ? e[i] : e[i].firstChild
+                        );
+                        xe.setEnd(e[i], dangerous.endOffset);
+                    }
+                    re.unshift(xe);
+                }
+
+            // Middle -- the uncaptured middle
+            if (0 < s.length && 0 < e.length) {
+                var xm = document.createRange();
+                xm.setStartAfter(s[s.length - 1]);
+                xm.setEndBefore(e[e.length - 1]);
+            } else {
+                return [dangerous];
+            }
+
+            // Concat
+            rs.push(xm);
+            var response = rs.concat(re);
+
+            // Send to Console
+            return response;
+        }
+
         function highlightText() {
-            var selectedText = "";
-            if (document.getSelection) {
-                selectedText = document.getSelection();
-            } else if (window.getSelection) {
-                selectedText = window.getSelection();
-            } else if (document.selection) {
-                selectedText = document.selection.createRange().text;
+            var userSelection = window.getSelection().getRangeAt(0);
+            var safeRanges = getSafeRanges(userSelection);
+            for (var i = 0; i < safeRanges.length; i++) {
+                highlightRange(safeRanges[i]);
             }
-            //Get a the selected content, in a range object
-            document.getElementById("textContent").contentEditable = "true";
-            var range = selectedText.getRangeAt(0);
-            //If the range spans some text, and inside a tag, set its css class.
-            if (range) {
-                selectedText.removeAllRanges();
-                selectedText.addRange(range);
-            }
-            document.execCommand("Backcolor", false, "#00ff00");
-            document.getElementById("textContent").contentEditable = "false";
         }
         function unhighlightText() {
             var selectedText = "";
@@ -169,6 +230,49 @@
             document.getElementById("textContent").contentEditable = "false";
         }
     </script>
+
+    <script>
+        window.onload = function () {
+            var pathArray = window.location.pathname.split('/');
+            var bookID = pathArray[3];
+            var setStateOnRefresh = localStorage.getItem(bookID);
+            if (setStateOnRefresh != null) {
+                document.body.innerHTML = setStateOnRefresh;
+            }
+            setTimeout(getScroll,10);
+        };
+        function getScroll(){
+            var pathArrayScroll = window.location.pathname.split('/');
+            var bookIDScroll = pathArrayScroll[3];
+            var keyBookIDScroll = bookIDScroll + "_scroll";
+            var scrollpos = localStorage.getItem(keyBookIDScroll);
+            if (scrollpos) window.scrollTo(0, scrollpos);
+        }
+        function SaveCurrentState() {
+            var pathArray = window.location.pathname.split('/');
+            var bookID = pathArray[3];
+            var keyBookID = bookID;
+            var valueBookID = document.body.innerHTML;
+            localStorage.removeItem(keyBookID);
+            localStorage.setItem(keyBookID, valueBookID);
+        }
+
+        // this function resets the localstorage and thus resets the page back to it's original state.
+        function reset() {
+            localStorage.clear();
+            window.location = window.location;
+        }
+    </script>
+
+    <script>
+
+        window.onbeforeunload = function(e) {
+            var pathArrayScroll = window.location.pathname.split('/');
+            var bookIDScroll = pathArrayScroll[3];
+            var keyBookIDScroll = bookIDScroll + "_scroll";
+            localStorage.setItem(keyBookIDScroll, window.scrollY.toString());
+        };
+    </script>
 </head>
 <body>
 <!-- Book Content -->
@@ -176,7 +280,8 @@
     <div>
         <div>
             <div class="fixOptions">
-                <select id="selectSize" onchange="selectSize(this);">
+                <button onclick="reset();">Reset</button>
+                <select id="selectSize" onchange="selectSize(this); SaveCurrentState();">
                     <option value="" selected disabled hidden>Size</option>
                     <option>50%</option>
                     <option>100%</option>
@@ -186,7 +291,7 @@
                     <option>300%</option>
                     <option>350%</option>
                 </select>
-                <select id="selectFont" onchange="selectFont(this);">
+                <select id="selectFont" onchange="selectFont(this); SaveCurrentState();">
                     <option value="" selected disabled hidden>Font</option>
                     <option>Georgia</option>
                     <option>Palatino Linotype</option>
@@ -202,19 +307,19 @@
                     <option>Courier New</option>
                     <option>Lucida Console</option>
                 </select>
-                <button id="bookmarkBtn" onclick="addBookmark();">
+                <button id="bookmarkBtn" onclick="addBookmark(); SaveCurrentState();">
                     Add Bookmark
                 </button>
-                <button id="zoomIn" onclick="zoom(this.id);">
+                <button id="zoomIn" onclick="zoom(this.id); SaveCurrentState();">
                     Zoom In
                 </button>
-                <button id="zoomOut" onclick="zoom(this.id);">
+                <button id="zoomOut" onclick="zoom(this.id); SaveCurrentState();">
                     Zoom Out
                 </button>
-                <button id="highlight" onclick="highlightText();">
+                <button id="highlight" onclick="highlightText(); SaveCurrentState();">
                     Highlight
                 </button>
-                <button id="unhighlight" onclick="unhighlightText();">
+                <button id="unhighlight" onclick="unhighlightText(); SaveCurrentState();">
                     Unhighlight
                 </button>
             </div>

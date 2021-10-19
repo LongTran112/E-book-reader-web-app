@@ -10,9 +10,18 @@ router.post("/", async (req, res) => {
         description: req.body.description,
         content: req.body.content
     });
+    const title = req.query.title;
     try {
        await newPost.save();
-        res.status(200).json(newPost);
+        let books;
+        if (title){
+            books = await Book.find({title});
+        }else{
+            books = await Book.find();
+        }
+        res.status(200).render('index',{
+            books
+        });
     } catch (err) {
         res.status(500).json(err);
     }
