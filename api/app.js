@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const bookRoute = require('./routes/books');
 const homeRoute = require('./routes/home');
+const writerRoute = require('./routes/writer');
+
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 
@@ -22,6 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false })); // Parses urlencoded bodies
 app.use(bodyParser.json()); // Send JSON responses
 app.use("/api/books",bookRoute)
 app.use(homeRoute);
+app.use(writerRoute);
 
 
 app.listen("5000", () => {
