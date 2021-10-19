@@ -146,6 +146,11 @@
 
 <body>
 <form action="http://localhost:5000/api/books" method="POST" >
+    <div class="BackPage">
+        <a href="/home">
+            <button type="button" class="btn btn-primary btn-lg">Home</button>
+        </a>
+    </div>
     <div id="d1">
         <table class="t1">
             <div class="t2">
@@ -201,10 +206,19 @@
         </select>
         <select id="s4" class="s4" onchange="selectFont()">
             <option value="" selected disabled hidden>Font</option>
-            <option value="times new roman">Times New Roman</option>
-            <option value="calibri">Calibri</option>
-            <option value="arial">Arial</option>
-            <option value="tahoma">Tahoma</option>
+            <option>Georgia</option>
+            <option>Palatino Linotype</option>
+            <option>Book Antiqua</option>
+            <option>Times New Roman</option>
+            <option>Arial</option>
+            <option>Helvetica</option>
+            <option>Arial Black</option>
+            <option>Impact</option>
+            <option>Lucida Sans Unicode</option>
+            <option>Tahoma</option>
+            <option>Verdana</option>
+            <option>Courier New</option>
+            <option>Lucida Console</option>
         </select>
         <select id="s5" class="s5" onchange="selectColor()">
             <option value="" selected disabled hidden>Color</option>

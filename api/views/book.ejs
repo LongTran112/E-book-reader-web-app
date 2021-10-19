@@ -16,53 +16,69 @@
             margin-top: auto;
             margin-bottom: auto;
         }
-        .text2{
+        .chapter{
             width: 60%;
             position: relative;
             top: 10%;
             left:20%;
-            border: 1px white solid;
+        }
+        .text2{
+            width: 80%;
+            position: relative;
+            top: 10%;
+            left:10%;
+            border:1px black solid;
+        }
+        .footnote{
+            width: 60%;
+            position: relative;
+            top: 10%;
+            left:20%;
         }
         .left{
-        //white-space: nowrap;
-            display:inline-block;
+            display:block;
             text-align: left;
             margin-top: auto;
             margin-bottom: auto;
             width: 100%;
         }
         .center{
-        //white-space: nowrap;
-            display: inline-block;
+            display: block;
             text-align: center;
             margin-top: auto;
             margin-bottom: auto;
             width: 100%;
         }
         .right{
-        //white-space: nowrap;
-            display: inline-block;
+            display: block;
             text-align: right;
             margin-top: auto;
             margin-bottom: auto;
             width: 100%;
         }
         .fixOptions {
-            margin-left: 50%;
-            position: fixed;
-            top: 0px;
-            height: 22px;
-            width: 100%;
-            border: 1px #000;
-            background-color: rgb(128, 0, 0);
-            z-index: 100;
+        	margin-left: 50%;
+        	position: fixed;
+        	top: 0px;
+        	height: 22px;
+        	width: 100%;
+        	border: 1px #000;
+        	background-color: rgb(128, 0, 0);
+        	z-index: 100;
         }
         .borderTableOfContent {
-            background-color: #ffffdd;
-            border: 1px solid #000;
+        	background-color: #ffffdd;
+        	border: 1px solid #000;
+        	width: 60%;
+            position: relative;
+            top: 10%;
+            left:20%;
         }
         .fontTextContent {
             font-family: Arial;
+        }
+        .BackPage{
+            position:fixed;
         }
     </style>
     <script>
@@ -126,10 +142,10 @@
 
                 range.insertNode(markerEl);
 
-                //var tableOfContentElem = document.getElementById("tableOfContent");
-                //tableOfContentElem.innerHTML += "<a href='#bookmark-" + cnt + "'>" + selectedText + "</a><br>";
-                var chapterElem = document.getElementById("chapter");
-                chapterElem.innerHTML += "<a href='#bookmark-" + cnt + "'>" + selectedText + "</a><br>";
+                var tableOfContentElem = document.getElementById("tableOfContent");
+                tableOfContentElem.innerHTML += "<a href='#bookmark-" + cnt + "'>" + selectedText + "</a><br>";
+                //var chapterElem = document.getElementById("chapter");
+                //chapterElem.innerHTML += "<a href='#bookmark-" + cnt + "'>" + selectedText + "</a><br>";
             }
         }
     </script>
@@ -279,6 +295,11 @@
 <article>
     <div>
         <div>
+            <div class="BackPage">
+            <a href="/api/books">
+                    <button type="button" class="btn btn-primary btn-lg">Reader</button>
+            </a>
+            </div>
             <div class="fixOptions">
                 <button onclick="reset();">Reset</button>
                 <select id="selectSize" onchange="selectSize(this); SaveCurrentState();">
