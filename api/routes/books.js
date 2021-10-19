@@ -49,6 +49,16 @@ router.get("/", async (req, res) => {
     }
 });
 
+//GET ALL BOOK
+router.get("/home", async (req, res) => {
+    try {
+        res.status(200).render('homepage',{});
+
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
 
 
 

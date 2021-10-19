@@ -13,6 +13,11 @@
 <!
 -- Main Content -->
 <div class="container">
+    <div class="text-center">
+        <a href="/home">
+            <button type="button" class="btn btn-secondary btn-lg">Back to homepage</button>
+        </a>
+    </div>
     <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
             <% for (var i = 0; i < books.length; i++) { %>
@@ -21,11 +26,11 @@
                         ID:<%= books[i].id %>
                     </h6>
 
-                        <h2 >
-                            <a href="/api/books/<%= books[i].id %>">
+                    <h2 >
+                        <a href="/api/books/<%= books[i].id %>">
                             <%= books[i].title %>
-                            </a>
-                        </h2>
+                        </a>
+                    </h2>
 
                     <h3>
                         By <%= books[i].author %>

@@ -51,16 +51,178 @@
             margin-bottom: auto;
             width: 100%;
         }
+        .fixOptions {
+            margin-left: 50%;
+            position: fixed;
+            top: 0px;
+            height: 22px;
+            width: 100%;
+            border: 1px #000;
+            background-color: rgb(128, 0, 0);
+            z-index: 100;
+        }
+        .borderTableOfContent {
+            background-color: #ffffdd;
+            border: 1px solid #000;
+        }
     </style>
+    <script>
+        function selectFont(selectTag) {
+            var listValue = selectTag.options[selectTag.selectedIndex].text;
+            document.getElementById("textContent").style.fontFamily = listValue;
+        }
+    </script>
+    <script>
+        function selectSize(selectTag) {
+            var listValue = selectTag.options[selectTag.selectedIndex].text;
+            document.getElementById("textContent").style.fontSize = listValue;
+        }
+    </script>
+    <script>
+        function zoom(id) {
+            var textContent = document.getElementById("textContent");
+
+            let rootFontSize = parseFloat(
+                window.getComputedStyle(textContent, null).getPropertyValue("font-size")
+            );
+            //console.log("Root font size " + rootFontSize);
+            if (id === "zoomIn") {
+                rootFontSize = rootFontSize + 2;
+            }
+            if (id === "zoomOut" && rootFontSize > 10) {
+                rootFontSize = rootFontSize - 2;
+            }
+            textContent.style.fontSize = `${rootFontSize}px`;
+            //console.log("Root font size after " + rootFontSize);
+        }
+    </script>
+    <script>
+        var cnt = 0;
+        function addBookmark() {
+            cnt++;
+            var selectedText = "";
+            if (document.getSelection) {
+                selectedText = document.getSelection();
+            } else if (window.getSelection) {
+                selectedText = window.getSelection();
+            } else if (document.selection) {
+                selectedText = document.selection.createRange().text;
+            }
+            //Get a the selected content, in a range object
+            var range = selectedText.getRangeAt(0);
+            var selectedTextStr = range.extractContents();
+            //If the range spans some text, and inside a tag, set its css class.
+            if (range) {
+                var markerEl,
+                    markerId = "bookmark-" + cnt;
+                markerEl = document.createElement("span");
+                markerEl.id = markerId;
+
+                markerEl.appendChild(selectedTextStr);
+
+                range.insertNode(markerEl);
+
+                var tableOfContentElem = document.getElementById("tableOfContent");
+                tableOfContentElem.innerHTML += "<a href='#bookmark-" + cnt + "'>" + selectedText + "</a><br>";
+            }
+        }
+    </script>
+    <script>
+        function highlightText() {
+            var selectedText = "";
+            if (document.getSelection) {
+                selectedText = document.getSelection();
+            } else if (window.getSelection) {
+                selectedText = window.getSelection();
+            } else if (document.selection) {
+                selectedText = document.selection.createRange().text;
+            }
+            //Get a the selected content, in a range object
+            document.getElementById("textContent").contentEditable = "true";
+            var range = selectedText.getRangeAt(0);
+            //If the range spans some text, and inside a tag, set its css class.
+            if (range) {
+                selectedText.removeAllRanges();
+                selectedText.addRange(range);
+            }
+            document.execCommand("Backcolor", false, "#00ff00");
+            document.getElementById("textContent").contentEditable = "false";
+        }
+        function unhighlightText() {
+            var selectedText = "";
+            if (document.getSelection) {
+                selectedText = document.getSelection();
+            } else if (window.getSelection) {
+                selectedText = window.getSelection();
+            } else if (document.selection) {
+                selectedText = document.selection.createRange().text;
+            }
+            //Get a the selected content, in a range object
+            document.getElementById("textContent").contentEditable = "true";
+            var range = selectedText.getRangeAt(0);
+            //If the range spans some text, and inside a tag, set its css class.
+            if (range) {
+                selectedText.removeAllRanges();
+                selectedText.addRange(range);
+            }
+            document.execCommand("Backcolor", false, "lightblue");
+            document.getElementById("textContent").contentEditable = "false";
+        }
+    </script>
 </head>
 <body>
 <!-- Book Content -->
 <article>
     <div>
         <div>
-            <div>
+            <div class="fixOptions">
+                <select id="selectSize" onchange="selectSize(this);">
+                    <option value="" selected disabled hidden>Size</option>
+                    <option>50%</option>
+                    <option>100%</option>
+                    <option>150%</option>
+                    <option>200%</option>
+                    <option>250%</option>
+                    <option>300%</option>
+                    <option>350%</option>
+                </select>
+                <select id="selectFont" onchange="selectFont(this);">
+                    <option value="" selected disabled hidden>Font</option>
+                    <option>Georgia</option>
+                    <option>Palatino Linotype</option>
+                    <option>Book Antiqua</option>
+                    <option>Times New Roman</option>
+                    <option>Arial</option>
+                    <option>Helvetica</option>
+                    <option>Arial Black</option>
+                    <option>Impact</option>
+                    <option>Lucida Sans Unicode</option>
+                    <option>Tahoma</option>
+                    <option>Verdana</option>
+                    <option>Courier New</option>
+                    <option>Lucida Console</option>
+                </select>
+                <button id="bookmarkBtn" onclick="addBookmark();">
+                    Add Bookmark
+                </button>
+                <button id="zoomIn" onclick="zoom(this.id);">
+                    Zoom In
+                </button>
+                <button id="zoomOut" onclick="zoom(this.id);">
+                    Zoom Out
+                </button>
+                <button id="highlight" onclick="highlightText();">
+                    Highlight
+                </button>
+                <button id="unhighlight" onclick="unhighlightText();">
+                    Unhighlight
+                </button>
+            </div>
+            <div class="borderTableOfContent" id="tableOfContent">
+                <h3>Bookmark</h3>
+            </div>
+            <div id="textContent">
                 <%- book.content %>
-
             </div>
         </div>
     </div>
