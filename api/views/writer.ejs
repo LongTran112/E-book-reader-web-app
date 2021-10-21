@@ -420,7 +420,7 @@
                 console.log(sel);
             }
             //append the text;
-            let newText = allText.substring(0, start) +"<color:" +data+">" +sel+"</a>" + allText.substring(parseInt(finish ), allText.length);
+            let newText = allText.substring(0, start) +"<color:" +data+">" +sel+"</color>" + allText.substring(parseInt(finish ), allText.length);
             txtarea.value = newText;
         }//insert color tag into text editor
 
@@ -442,7 +442,7 @@
                 .replace(/<a:(\w+)>/g, "<span class=\'$1\'>")                                      //replace tag <a:[text align]> with <align=[text align]>
                 .replace(/<\/a>/g, '</span>')                                                      //replace tag </a> with </align>
                 .replace(/<chapter:(\d+)>(.*?)<\/chapter>/g, "<h2 id=\"chapter-$1\">" + 'Chapter $1 - $2' + "</h2>")
-                .replace(/\n/g,"<br></br>");
+                .replace(/\n/g,"<br/>");
             if (GetFoonoteContent() != null)
             {
                 var replaceContent = GetFoonoteContent();
