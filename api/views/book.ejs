@@ -5,82 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Book</title>
     <style>
-        body{
-            background-color: lightblue;
-        }
-        article{
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            left: 0%;
-            margin-top: auto;
-            margin-bottom: auto;
-        }
-        .chapter{
-            width: 60%;
-            position: relative;
-            top: 10%;
-            left:20%;
-        }
-        .text2{
-            width: 80%;
-            position: relative;
-            top: 10%;
-            left:10%;
-            border:1px black solid;
-        }
-        .footnote{
-            width: 60%;
-            position: relative;
-            top: 10%;
-            left:20%;
-        }
-        .left{
-            display:block;
-            text-align: left;
-            margin-top: auto;
-            margin-bottom: auto;
-            width: 100%;
-        }
-        .center{
-            display: block;
-            text-align: center;
-            margin-top: auto;
-            margin-bottom: auto;
-            width: 100%;
-        }
-        .right{
-            display: block;
-            text-align: right;
-            margin-top: auto;
-            margin-bottom: auto;
-            width: 100%;
-        }
-        .fixOptions {
-        	margin-left: 50%;
-        	position: fixed;
-        	top: 0px;
-        	height: 22px;
-        	width: 100%;
-        	border: 1px #000;
-        	background-color: rgb(128, 0, 0);
-        	z-index: 100;
-        }
-        .borderTableOfContent {
-        	background-color: #ffffdd;
-        	border: 1px solid #000;
-        	width: 60%;
-            position: relative;
-            top: 10%;
-            left:20%;
-        }
-        .fontTextContent {
-            font-family: Arial;
-        }
-        .BackPage{
-            position:fixed;
-        }
-    </style>
+		body{
+			background-color: lightblue;
+		}
+		article{
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			left: 0%;
+			margin-top: auto;
+			margin-bottom: auto;
+			text-overflow:hidden;
+		}
+		.chapter{
+			width: 13%;
+			position: fixed;
+			top: 10%;
+			left:2%;
+		}
+		.chapter a:hover {
+			background-color:red;
+		}
+		.text2{
+			width: 70%;
+			position: relative;
+			top: 10%;
+			left:15%;
+			border:1px black solid;
+		}
+		.footnote{
+			width: 60%;
+			position: relative;
+			top: 10%;
+			left:20%;
+		}
+		.left{
+			display:block;
+			text-align: left;
+			margin-top: auto;
+			margin-bottom: auto;
+			width: 100%;
+		}
+		.center{
+			display: block;
+			text-align: center;
+			margin-top: auto;
+			margin-bottom: auto;
+			width: 100%;
+		}
+		.right{
+			display: block;
+			text-align: right;
+			margin-top: auto;
+			margin-bottom: auto;
+			width: 100%;
+		}
+		.fixOptions {
+			margin-left: 50%;
+			position: fixed;
+			top: 0px;
+			right:0px;
+			border: 1px #000;
+			background-color: rgb(128, 0, 0);
+			z-index: 100;
+		}
+		.borderTableOfContent {
+			position: fixed;
+			top:10%;
+			left:87%;
+			overflow:hidden;
+		}
+		.fontTextContent {
+			font-family: Arial;
+		}
+		.BackPage{
+			position:fixed;
+		}
+		.borderTableOfContent a:hover
+		{
+			background-color:red;
+			//cursor: pointer;
+		}
+		.borderTableOfContent a
+		{
+			color:blue;
+			cursor: pointer;
+		}
+		div.chapter:before{
+			content: "Table of Content";
+			font-weight: bold;
+		}
+
+	</style>
+
     <script>
         function selectFont(selectTag) {
             var listValue = selectTag.options[selectTag.selectedIndex].text;
@@ -93,19 +110,24 @@
                 //allElemsInText2[i].setAttribute('style', 'font-family:' + listValue);
                 allElemsInText2[i].style.fontFamily = listValue;
             }
-
-            document.getElementById("textContent").style.fontFamily = listValue;
+            var pathArray = window.location.pathname.split('/');
+            var keyBookIDScroll = pathArray[3] + "_font";
+            document.getElementById("text2").style.fontFamily = listValue;
+            var indexOfElemToScrollInto = localStorage.setItem(keyBookIDScroll,listValue);
         }
     </script>
     <script>
         function selectSize(selectTag) {
             var listValue = selectTag.options[selectTag.selectedIndex].text;
-            document.getElementById("textContent").style.fontSize = listValue;
+            document.getElementById("text2").style.fontSize = listValue;
+            var pathArray = window.location.pathname.split('/');
+            var keyBookIDScroll = pathArray[3] + "_size";
+            var indexOfElemToScrollInto = localStorage.setItem(keyBookIDScroll,listValue);
         }
     </script>
     <script>
         function zoom(id) {
-            var textContent = document.getElementById("textContent");
+            var textContent = document.getElementById("text2");
 
             let rootFontSize = parseFloat(
                 window.getComputedStyle(textContent, null).getPropertyValue("font-size")
@@ -118,11 +140,14 @@
                 rootFontSize = rootFontSize - 2;
             }
             textContent.style.fontSize = `${rootFontSize}px`;
+            var pathArray = window.location.pathname.split('/');
+            var keyBookIDScroll = pathArray[3] + "_size";
+            var indexOfElemToScrollInto = localStorage.setItem(keyBookIDScroll,rootFontSize + "px");
             //console.log("Root font size after " + rootFontSize);
         }
     </script>
     <script>
-        var cnt = 0;
+        /*var cnt = 0;
         function addBookmark() {
             cnt++;
             var sel = window.getSelection();
@@ -147,8 +172,193 @@
                 //var chapterElem = document.getElementById("chapter");
                 //chapterElem.innerHTML += "<a href='#bookmark-" + cnt + "'>" + selectedText + "</a><br>";
             }
+        }*/
+
+		//This function returns an HTMLCollection (an array) of all paragraph elements in the document
+        function getAllPElems()
+		{
+			let container, elem;
+			container = document.getElementById("text2");
+			elem = container.children;
+			console.log(elem);
+
+			return elem;
+		}
+
+		var cnt = 0;
+		var bookmarkArray = [];
+        function addBookmark()
+        {
+        	cnt++;
+			var pElems = getAllPElems();
+			var currentTopMostElem;
+			for (var i = 0; i < pElems.length; i++)
+			{
+				if (pElems[i].getBoundingClientRect().top > 0)
+				{
+					currentTopMostElem = i;
+					break;
+				}
+			}
+
+			var pathArray = window.location.pathname.split('/');
+			var keyBookIDBookmark = pathArray[3] + "_bookmark";
+			bookmarkArray.push(currentTopMostElem);
+			localStorage.setItem(keyBookIDBookmark, bookmarkArray);
+
+			var tableOfContentElem = document.getElementById("tableOfContent");
+			tableOfContentElem.innerHTML += "<a onclick='GoToBookmark(" + cnt + ")'>Bookmark " + cnt + "</a><br>";
+
+			var keyBookIDBookmarkDisplay = pathArray[3] + "_displayBookmark";
+			var valueBookIDBookmarkDisplay = document.getElementById("tableOfContent").innerHTML;
+			localStorage.setItem(keyBookIDBookmarkDisplay, valueBookIDBookmarkDisplay);
+        }
+
+        function GoToBookmark(cnt)
+        {
+        	var pathArray = window.location.pathname.split('/');
+			var keyBookIDBookmark = pathArray[3] + "_bookmark";
+			var allBookIDBookmarks = localStorage.getItem(keyBookIDBookmark);
+			var allBookIDBookmarksArray = allBookIDBookmarks.split(',');
+			var indexOfElemToScrollInto = allBookIDBookmarksArray[cnt-1];
+			var pElems = getAllPElems();
+			if (indexOfElemToScrollInto != null)
+			{
+				pElems[indexOfElemToScrollInto].scrollIntoView();
+			}
         }
     </script>
+    <script>
+		function addParagraph(){
+			let container = document.getElementById("text2").innerHTML;
+
+			var pars = container.split(/\r?<br>|\r/);
+
+			var res = ""
+			for(let i =0;i< pars.length;i++){
+				res = res + "<p>" + pars[i] + "</p>";
+			}
+			document.getElementById("text2").innerHTML = res;
+
+		}
+		document.addEventListener("DOMContentLoaded", addParagraph);
+	</script>
+
+	<script>
+		//let container, elem;
+		//var currentTopMostElem;
+
+		function getAllPElems()
+		{
+			let container, elem;
+			container = document.getElementById("text2");
+			elem = container.children;
+			console.log(elem);
+
+			return elem;
+		}
+
+		document.addEventListener("scroll",function()
+		{
+			/*for (var i = 0; i < elem.length; i++)
+			{
+				if (elem[i].getBoundingClientRect().top > 0)
+				{
+					currentTopMostElem = i;
+					break;
+				}
+			}
+			var pathArrayScroll = window.location.pathname.split('/');
+			var bookIDScroll = pathArrayScroll[3];
+			var keyBookIDScroll = bookIDScroll + "_scroll";
+			localStorage.setItem(keyBookIDScroll, currentTopMostElem);*/
+
+			var pElems = getAllPElems();
+			var currentTopMostElem;
+			for (var i = 0; i < pElems.length; i++)
+			{
+				if (pElems[i].getBoundingClientRect().top > 0)
+				{
+					currentTopMostElem = i;
+					break;
+				}
+			}
+			var pathArrayScroll = window.location.pathname.split('/');
+			var bookIDScroll = pathArrayScroll[3];
+			var keyBookIDScroll = bookIDScroll + "_scroll";
+			localStorage.setItem(keyBookIDScroll, currentTopMostElem);
+		});
+
+		function ScrollToLastView()
+		{
+			var pathArray = window.location.pathname.split('/');
+			var keyBookIDScroll = pathArray[3] + "_scroll";
+			var indexOfElemToScrollInto = localStorage.getItem(keyBookIDScroll);
+			var pElems = getAllPElems();
+			if (indexOfElemToScrollInto != null)
+			{
+				pElems[indexOfElemToScrollInto].scrollIntoView();
+			}
+		}
+
+		function getFont()
+		{
+			var pathArray = window.location.pathname.split('/');
+			var keyBookIDFont = pathArray[3] + "_font";
+			var setFontOnRefresh = localStorage.getItem(keyBookIDFont);
+			if (setFontOnRefresh != null)
+			{
+				document.getElementById("text2").style.fontFamily = setFontOnRefresh;
+			}
+		}
+
+		function getSize()
+		{
+			var pathArray = window.location.pathname.split('/');
+			var keyBookIDSize = pathArray[3] + "_size";
+			var setSizeOnRefresh = localStorage.getItem(keyBookIDSize);
+			if (setSizeOnRefresh != null)
+			{
+				document.getElementById("text2").style.fontSize = setSizeOnRefresh;
+			}
+		}
+
+		function getBookmark()
+		{
+			var pathArray = window.location.pathname.split('/');
+			var keyBookIDBookmarkDisplay = pathArray[3] + "_displayBookmark";
+			var valueBookIDBookmarkDisplay = localStorage.getItem(keyBookIDBookmarkDisplay);
+			if (valueBookIDBookmarkDisplay != null)
+			{
+				document.getElementById("tableOfContent").innerHTML = valueBookIDBookmarkDisplay;
+			}
+		}
+
+		window.onload = function ()
+		{
+			/*var pathArray = window.location.pathname.split('/');
+			var bookID = pathArray[3];
+			var setStateOnRefresh = localStorage.getItem(bookID);
+			if (setStateOnRefresh != null)
+			{
+				//document.body.innerHTML = setStateOnRefresh;
+			}*/
+			//getPosition();
+			//getAllPElems();
+			getFont();
+			getSize();
+			getBookmark();
+			ScrollToLastView();
+		};
+
+		// this function resets the localstorage and thus resets the page back to it's original state.
+		function reset()
+		{
+			localStorage.clear();
+			window.location = window.location;
+		}
+	</script>
+
     <script>
         function highlightRange(range) {
             var newNode = document.createElement("div");
@@ -247,48 +457,6 @@
         }
     </script>
 
-    <script>
-        window.onload = function () {
-            var pathArray = window.location.pathname.split('/');
-            var bookID = pathArray[3];
-            var setStateOnRefresh = localStorage.getItem(bookID);
-            if (setStateOnRefresh != null) {
-                document.body.innerHTML = setStateOnRefresh;
-            }
-            setTimeout(getScroll,10);
-        };
-        function getScroll(){
-            var pathArrayScroll = window.location.pathname.split('/');
-            var bookIDScroll = pathArrayScroll[3];
-            var keyBookIDScroll = bookIDScroll + "_scroll";
-            var scrollpos = localStorage.getItem(keyBookIDScroll);
-            if (scrollpos) window.scrollTo(0, scrollpos);
-        }
-        function SaveCurrentState() {
-            var pathArray = window.location.pathname.split('/');
-            var bookID = pathArray[3];
-            var keyBookID = bookID;
-            var valueBookID = document.body.innerHTML;
-            localStorage.removeItem(keyBookID);
-            localStorage.setItem(keyBookID, valueBookID);
-        }
-
-        // this function resets the localstorage and thus resets the page back to it's original state.
-        function reset() {
-            localStorage.clear();
-            window.location = window.location;
-        }
-    </script>
-
-    <script>
-
-        window.onbeforeunload = function(e) {
-            var pathArrayScroll = window.location.pathname.split('/');
-            var bookIDScroll = pathArrayScroll[3];
-            var keyBookIDScroll = bookIDScroll + "_scroll";
-            localStorage.setItem(keyBookIDScroll, window.scrollY.toString());
-        };
-    </script>
 </head>
 <body>
 <!-- Book Content -->
@@ -302,7 +470,7 @@
             </div>
             <div class="fixOptions">
                 <button onclick="reset();">Reset</button>
-                <select id="selectSize" onchange="selectSize(this); SaveCurrentState();">
+                <select id="selectSize" onchange="selectSize(this); ">
                     <option value="" selected disabled hidden>Size</option>
                     <option>50%</option>
                     <option>100%</option>
@@ -312,7 +480,7 @@
                     <option>300%</option>
                     <option>350%</option>
                 </select>
-                <select id="selectFont" onchange="selectFont(this); SaveCurrentState();">
+                <select id="selectFont" onchange="selectFont(this);">
                     <option value="" selected disabled hidden>Font</option>
                     <option>Georgia</option>
                     <option>Palatino Linotype</option>
@@ -328,19 +496,19 @@
                     <option>Courier New</option>
                     <option>Lucida Console</option>
                 </select>
-                <button id="bookmarkBtn" onclick="addBookmark(); SaveCurrentState();">
+                <button id="bookmarkBtn" onclick="addBookmark();">
                     Add Bookmark
                 </button>
-                <button id="zoomIn" onclick="zoom(this.id); SaveCurrentState();">
+                <button id="zoomIn" onclick="zoom(this.id);">
                     Zoom In
                 </button>
-                <button id="zoomOut" onclick="zoom(this.id); SaveCurrentState();">
+                <button id="zoomOut" onclick="zoom(this.id);">
                     Zoom Out
                 </button>
-                <button id="highlight" onclick="highlightText(); SaveCurrentState();">
+                <button id="highlight" onclick="highlightText();">
                     Highlight
                 </button>
-                <button id="unhighlight" onclick="unhighlightText(); SaveCurrentState();">
+                <button id="unhighlight" onclick="unhighlightText();">
                     Unhighlight
                 </button>
             </div>
