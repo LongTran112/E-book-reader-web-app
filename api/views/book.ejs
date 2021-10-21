@@ -185,11 +185,25 @@
 			return elem;
 		}
 
-		var cnt = 0;
-		var bookmarkArray = [];
+		window.addEventListener('DOMContentLoaded', (event) => {
+            console.log('DOM fully loaded and parsed');
+			var pathArray = window.location.pathname.split('/');
+			var keyBookIDBookmark = pathArray[3] + "_bookmark";
+			if (localStorage.getItem(keyBookIDBookmark) == null)
+			{
+				var bookmarkArray = [];
+				localStorage.setItem(keyBookIDBookmark, bookmarkArray);
+			}
+        });
+
         function addBookmark()
         {
-        	cnt++;
+        	var pathArray = window.location.pathname.split('/');
+            var keyBookIDBookmark = pathArray[3] + "_bookmark";
+            var bookmarkStr = localStorage.getItem(keyBookIDBookmark);
+            var bookmarkArray = bookmarkStr.split(',');
+            var cnt = bookmarkArray.length;
+
 			var pElems = getAllPElems();
 			var currentTopMostElem;
 			for (var i = 0; i < pElems.length; i++)
@@ -201,10 +215,9 @@
 				}
 			}
 
-			var pathArray = window.location.pathname.split('/');
-			var keyBookIDBookmark = pathArray[3] + "_bookmark";
 			bookmarkArray.push(currentTopMostElem);
 			localStorage.setItem(keyBookIDBookmark, bookmarkArray);
+			console.log(bookmarkArray);
 
 			var tableOfContentElem = document.getElementById("tableOfContent");
 			tableOfContentElem.innerHTML += "<a onclick='GoToBookmark(" + cnt + ")'>Bookmark " + cnt + "</a><br>";
@@ -220,7 +233,7 @@
 			var keyBookIDBookmark = pathArray[3] + "_bookmark";
 			var allBookIDBookmarks = localStorage.getItem(keyBookIDBookmark);
 			var allBookIDBookmarksArray = allBookIDBookmarks.split(',');
-			var indexOfElemToScrollInto = allBookIDBookmarksArray[cnt-1];
+			var indexOfElemToScrollInto = allBookIDBookmarksArray[cnt];
 			var pElems = getAllPElems();
 			if (indexOfElemToScrollInto != null)
 			{
