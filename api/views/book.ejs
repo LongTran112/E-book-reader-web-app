@@ -84,7 +84,7 @@
 		.borderTableOfContent a:hover
 		{
 			background-color:red;
-			//cursor: pointer;
+			cursor: pointer;
 		}
 		.borderTableOfContent a
 		{
@@ -372,103 +372,140 @@
 		}
 	</script>
 
-    <script>
-        function highlightRange(range) {
-            var newNode = document.createElement("div");
-            newNode.setAttribute("style", "background-color: yellow; display: inline;");
-            range.surroundContents(newNode);
-        }
+<script>
+	function highlightRange(range) {
+		//avoid empty range
+		if (range.toString() != "" && range.toString().match(/\w+/g) != null) {
+		
+			var newNode = document.createElement("span");
+			newNode.setAttribute("style", "background-color: yellow; display: inline;");
+			range.surroundContents(newNode);
+		}
+	}
 
-        function getSafeRanges(dangerous) {
-            //Node that contains both boundary points of the Range
-            var a = dangerous.commonAncestorContainer;
-            // Starts -- Work inward from the start, selecting the largest safe range
-            var s = new Array(0),
-                rs = new Array(0);
-            if (dangerous.startContainer != a)
-                for (var i = dangerous.startContainer; i != a; i = i.parentNode) {
-                    s.push(i);
-                }
-            if (0 < s.length)
-                for (var i = 0; i < s.length; i++) {
-                    var xs = document.createRange();
-                    if (i) {
-                        //set the start boundary of Range after s[i-1]
-                        xs.setStartAfter(s[i - 1]);
-                        //set the end boundary of Range after s[i].lastchild
-                        xs.setEndAfter(s[i].lastChild);
-                    } else {
-                        //set the Start of range
-                        xs.setStart(s[i], dangerous.startOffset);
-                        xs.setEndAfter(s[i].nodeType == Node.TEXT_NODE ? s[i] : s[i].lastChild);
-                    }
-                    rs.push(xs);
-                }
-            // Ends -- basically the same code reversed
-            var e = new Array(0),
-                re = new Array(0);
-            if (dangerous.endContainer != a)
-                for (var i = dangerous.endContainer; i != a; i = i.parentNode) e.push(i);
-            if (0 < e.length)
-                for (var i = 0; i < e.length; i++) {
-                    var xe = document.createRange();
-                    if (i) {
-                        xe.setStartBefore(e[i].firstChild);
-                        xe.setEndBefore(e[i - 1]);
-                    } else {
-                        xe.setStartBefore(
-                            e[i].nodeType == Node.TEXT_NODE ? e[i] : e[i].firstChild
-                        );
-                        xe.setEnd(e[i], dangerous.endOffset);
-                    }
-                    re.unshift(xe);
-                }
+	function getSafeRanges(dangerous) {
+		//Node that contains both boundary points of the Range
+		var a = dangerous.commonAncestorContainer;
+		// Starts -- Work inward from the start, selecting the largest safe range
+		var s = new Array(0),
+		rs = new Array(0);
+		if (dangerous.startContainer != a) {
+			for (var i = dangerous.startContainer; i != a; i = i.parentNode) {
+				//console.log(i);
+				s.push(i);
+			}	
+		}
+		//console.log(s);
+		if (0 < s.length) {
+			for (var i = 0; i < s.length; i++) {
+				var xs = document.createRange();
+				if (i) {
+					//set the start boundary of Range after s[i-1]
+					xs.setStartAfter(s[i - 1]);
+					//set the end boundary of Range after s[i].lastchild
+					xs.setEndAfter(s[i].lastChild);
+				} 
+				else {
+					//set the Start of range
+					xs.setStart(s[i], dangerous.startOffset);
+					xs.setEndAfter(s[i].nodeType == Node.TEXT_NODE ? s[i] : s[i].lastChild);
+				}
+				rs.push(xs);
+			}
+		}
+		//console.log(rs);
+		// Ends -- basically the same code reversed
+		var e = new Array(0), re = new Array(0);
+		if (dangerous.endContainer != a) {
+			for (var i = dangerous.endContainer; i != a; i = i.parentNode) {
+				e.push(i);
+			}
+		}
+		//console.log(e);
+		if (0 < e.length) {
+			for (var i = 0; i < e.length; i++) {
+				var xe = document.createRange();
+				if (i) {
+					xe.setStartBefore(e[i].firstChild);
+					xe.setEndBefore(e[i - 1]);
+				} 
+				else {
+					xe.setStartBefore(
+					e[i].nodeType == Node.TEXT_NODE ? e[i] : e[i].firstChild);
+					xe.setEnd(e[i], dangerous.endOffset);
+				}
+				re.unshift(xe);
+			}
+		}
+		//console.log(re);
+		// Middle -- the uncaptured middle
+		if (0 < s.length && 0 < e.length) {
+			var xm = document.createRange();
+			console.log(xm);
+			xm.setStartAfter(s[s.length - 1]);
+			xm.setEndBefore(e[e.length - 1]);
+		} 
+		else {
+			return [dangerous];
+		}
 
-            // Middle -- the uncaptured middle
-            if (0 < s.length && 0 < e.length) {
-                var xm = document.createRange();
-                xm.setStartAfter(s[s.length - 1]);
-                xm.setEndBefore(e[e.length - 1]);
-            } else {
-                return [dangerous];
-            }
-
-            // Concat
-            rs.push(xm);
-            var response = rs.concat(re);
-
-            // Send to Console
-            return response;
-        }
-
-        function highlightText() {
-            var userSelection = window.getSelection().getRangeAt(0);
-            var safeRanges = getSafeRanges(userSelection);
-            for (var i = 0; i < safeRanges.length; i++) {
-                highlightRange(safeRanges[i]);
-            }
-        }
-        function unhighlightText() {
-            var selectedText = "";
-            if (document.getSelection) {
-                selectedText = document.getSelection();
-            } else if (window.getSelection) {
-                selectedText = window.getSelection();
-            } else if (document.selection) {
-                selectedText = document.selection.createRange().text;
-            }
-            //Get a the selected content, in a range object
-            document.getElementById("textContent").contentEditable = "true";
-            var range = selectedText.getRangeAt(0);
-            //If the range spans some text, and inside a tag, set its css class.
-            if (range) {
-                selectedText.removeAllRanges();
-                selectedText.addRange(range);
-            }
-            document.execCommand("Backcolor", false, "lightblue");
-            document.getElementById("textContent").contentEditable = "false";
-        }
-    </script>
+		// Concat
+		rs.push(xm);
+		console.log(rs);
+		var response = rs.concat(re);
+		console.log(response);	
+		// Send to Console
+		return response;
+	}
+	function highlightText() {
+		var userSelection = window.getSelection().getRangeAt(0);
+		var safeRanges = getSafeRanges(userSelection);
+		for (var i = 0; i < safeRanges.length; i++) {
+			console.log(safeRanges[i].toString());
+			highlightRange(safeRanges[i]);
+		}
+	}
+	
+	function unhighlightRange(range) {
+		//avoid empty range
+		if (range.toString() != "" && range.toString().match(/\w+/g) != null) {
+		
+			var newNode = document.createElement("span");
+			newNode.setAttribute("style", "background-color: lightblue; display: inline;");
+			range.surroundContents(newNode);
+		}
+	}
+	function unhighlightText() {
+		var userSelection = window.getSelection().getRangeAt(0);
+		var safeRanges = getSafeRanges(userSelection);
+		for (var i = 0; i < safeRanges.length; i++) {
+			console.log(safeRanges[i].toString());
+			unhighlightRange(safeRanges[i]);
+		}
+	}
+	/*
+	function unhighlightText() {
+		var selectedText = "";
+		if (document.getSelection) {
+			selectedText = document.getSelection();
+		} else if (window.getSelection) {
+			selectedText = window.getSelection();
+		} else if (document.selection) {
+			selectedText = document.selection.createRange().text;
+		}
+		//Get a the selected content, in a range object
+		document.getElementById("textContent").contentEditable = "true";
+		var range = selectedText.getRangeAt(0);
+		//If the range spans some text, and inside a tag, set its css class.
+		if (range) {
+			selectedText.removeAllRanges();
+			selectedText.addRange(range);
+		}
+		document.execCommand("Backcolor", false, "lightblue");
+		document.getElementById("textContent").contentEditable = "false";
+	}
+	*/
+</script>
 
 </head>
 <body>
